@@ -6,9 +6,12 @@ import { FloatingAIAssistant } from '../chat/FloatingAIAssistant';
 
 export function AppLayout({ children }: { children: ReactNode }) {
   return (
-    <div className="flex h-screen overflow-hidden bg-background">
+    <div className="flex h-screen overflow-hidden bg-background relative">
+      {/* Dynamic Background Mesh */}
+      <div className="fixed inset-0 mesh-gradient pointer-events-none opacity-40" />
+      
       <Sidebar />
-      <div className="flex flex-1 flex-col overflow-hidden">
+      <div className="flex flex-1 flex-col overflow-hidden relative z-10">
         <TopBar />
         <main className="flex-1 overflow-y-auto p-4 pb-20 md:p-6 md:pb-6 relative scroll-smooth">
           {children}

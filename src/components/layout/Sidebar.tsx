@@ -2,6 +2,7 @@ import { Home, FileText, Ticket, UtensilsCrossed, Megaphone, User, Bell, Message
 import { Link, NavLink, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { useAppStore } from '@/lib/store';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const studentNav = [
   { to: '/', icon: Home, label: 'Dashboard' },
@@ -25,6 +26,11 @@ const wardenNav = [
 const adminNav = [
   { to: '/', icon: Home, label: 'Dashboard' },
   { to: '/users', icon: Users, label: 'Manage Users' },
+  { to: '/leave', icon: ClipboardList, label: 'Manage Leaves' },
+  { to: '/tickets', icon: Ticket, label: 'All Tickets' },
+  { to: '/mess', icon: UtensilsCrossed, label: 'Mess System' },
+  { to: '/announcements', icon: Megaphone, label: 'Hostel News' },
+  { to: '/security', icon: Shield, label: 'Security Logs' },
   { to: '/settings', icon: Settings, label: 'System Settings' },
   { to: '/profile', icon: User, label: 'Profile' },
 ];
@@ -74,53 +80,67 @@ export function Sidebar() {
   const currentNav = currentRole && navMap[currentRole] ? navMap[currentRole] : studentNav;
 
   return (
-    <aside className="hidden md:flex w-64 flex-col bg-sidebar border-r border-sidebar-border">
+    <aside className="hidden md:flex w-64 flex-col glass-sidebar relative z-30">
       <Link 
         to="/" 
-        className="flex items-center gap-3 px-6 py-5 border-b border-sidebar-border hover:bg-sidebar-accent/30 transition-colors group"
+        className="flex items-center gap-3 px-6 py-8 border-b border-sidebar-border/30 hover:bg-white/5 transition-all group"
       >
-        <div className="flex h-10 items-center justify-center rounded-lg group-hover:scale-105 transition-transform">
-          <img src="/logo.png" alt="Presidency University" className="h-full w-auto object-contain" />
+        <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/10 p-2 shadow-inner group-hover:scale-105 transition-all duration-500">
+          <img src="https://presidencyuniversity.in/assets/images/overview-logo.webp" alt="Presidency University" className="h-full w-auto object-contain brightness-0 invert" />
         </div>
-        <div>
-          <h1 className="font-display text-sm font-bold text-sidebar-primary-foreground group-hover:text-sidebar-primary transition-colors">Hostel Portal</h1>
-          <p className="text-xs text-sidebar-foreground/60 capitalize">{currentRole} Access</p>
+        <div className="min-w-0">
+          <h1 className="font-display text-[11px] font-extrabold text-sidebar-primary uppercase tracking-widest leading-none mb-1 drop-shadow-sm">Presidency</h1>
+          <p className="text-[9px] text-white/70 uppercase font-black tracking-tighter truncate drop-shadow-sm">{currentRole} portal</p>
         </div>
       </Link>
 
-      <nav className="flex-1 p-3 space-y-1 overflow-y-auto">
-        {currentNav.map((item) => (
-          <NavLink
-            key={item.to}
-            to={item.to}
-            className={cn(
-               'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all',
-              location.pathname === item.to
-                ? 'bg-sidebar-accent text-sidebar-primary'
-                : 'text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground'
-            )}
-          >
-            <item.icon className="h-4.5 w-4.5" />
-            {item.label}
-          </NavLink>
-        ))}
+      <nav className="flex-1 p-4 space-y-1.5 overflow-y-auto">
+        {currentNav.map((item) => {
+          const isActive = location.pathname === item.to;
+          return (
+            <NavLink
+              key={item.to}
+              to={item.to}
+              className={cn(
+                'flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-bold transition-all relative group',
+                isActive
+                  ? 'text-sidebar-primary bg-white/5 shadow-[inset_0_1px_1px_rgba(255,255,255,0.1)] drop-shadow-md'
+                  : 'text-sidebar-foreground/80 hover:text-sidebar-foreground hover:bg-white/5 drop-shadow-sm'
+              )}
+            >
+              {isActive && (
+                 <motion.div 
+                   layoutId="active-pill" 
+                   className="absolute left-0 w-1 h-5 bg-sidebar-primary rounded-r-full" 
+                   transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                 />
+              )}
+              <item.icon className={cn("h-4.5 w-4.5 transition-transform duration-300 group-hover:scale-110", isActive ? "text-sidebar-primary" : "opacity-70")} strokeWidth={2.5} />
+              <span className="tracking-tight">{item.label}</span>
+            </NavLink>
+          );
+        })}
       </nav>
 
       {user && (
-        <div className="p-3 border-t border-sidebar-border">
+        <div className="p-4 border-t border-white/5 bg-black/10 backdrop-blur-md">
           <Link 
             to="/profile" 
             className={cn(
-              "flex items-center gap-3 px-3 py-2 rounded-lg transition-all hover:bg-sidebar-accent group",
-              location.pathname === '/profile' && "bg-sidebar-accent"
+              "flex items-center gap-3 px-3 py-2.5 rounded-2xl transition-all hover:bg-white/5 group relative",
+              location.pathname === '/profile' && "bg-white/5 shadow-inner"
             )}
           >
-            <div className="h-8 w-8 rounded-full bg-primary flex items-center justify-center text-xs font-bold text-primary-foreground group-hover:scale-105 transition-transform">
-              {user.name.split(' ').map(n => n[0]).join('')}
+            <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-sidebar-primary to-amber-600 flex items-center justify-center text-xs font-black text-sidebar-primary-foreground group-hover:scale-105 transition-all shadow-lg overflow-hidden">
+               {user.avatar ? (
+                <img src={user.avatar} alt={user.name} className="h-full w-full object-cover" />
+              ) : (
+                user.name.split(' ').map(n => n[0]).join('')
+              )}
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-sidebar-accent-foreground truncate group-hover:text-sidebar-primary transition-colors">{user.name}</p>
-              {user.roomNumber && <p className="text-xs text-sidebar-foreground/60">{user.roomNumber}</p>}
+              <p className="text-xs font-extrabold text-white truncate leading-tight drop-shadow-md">{user.name}</p>
+              <p className="text-[9px] text-white/70 uppercase font-bold tracking-widest mt-0.5 drop-shadow-sm">{user.role}</p>
             </div>
           </Link>
         </div>
