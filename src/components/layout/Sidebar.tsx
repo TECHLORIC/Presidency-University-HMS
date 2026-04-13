@@ -102,10 +102,10 @@ export function Sidebar() {
               key={item.to}
               to={item.to}
               className={cn(
-                'flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-bold transition-all relative group',
+                'flex items-center gap-3 px-4 py-3 text-xs font-bold transition-all relative group water-drop-button',
                 isActive
-                  ? 'text-sidebar-primary bg-white/5 shadow-[inset_0_1px_1px_rgba(255,255,255,0.1)] drop-shadow-md'
-                  : 'text-sidebar-foreground/80 hover:text-sidebar-foreground hover:bg-white/5 drop-shadow-sm'
+                  ? 'text-sidebar-primary bg-white/10 shadow-[inset_0_1px_1px_rgba(255,255,255,0.1)]'
+                  : 'text-sidebar-foreground/80 hover:text-sidebar-foreground'
               )}
             >
               {isActive && (

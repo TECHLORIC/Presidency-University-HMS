@@ -131,4 +131,81 @@
   .premium-shadow {
     box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.05), 0 5px 15px -5px rgba(0, 0, 0, 0.03);
   }
+
+  .ios-notification-option {
+    @apply transition-all duration-300 relative overflow-hidden;
+    backdrop-filter: blur(25px);
+    background: rgba(255, 255, 255, 0.06);
+    border: 0.5px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+
+  .ios-notification-option:hover {
+    @apply scale-[1.01] -translate-y-0.5;
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.4);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  }
+
+  .ios-notification-option:active {
+    @apply scale-[0.98];
+  }
+
+  .water-drop-button {
+    @apply transition-all duration-500 relative overflow-hidden;
+    transition-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
+    backdrop-filter: blur(20px);
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 
+      inset 0 1px 1px rgba(255, 255, 255, 0.1),
+      0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  }
+
+  .water-drop-button:hover {
+    @apply scale-[1.03] -translate-y-0.5 z-10;
+    background: rgba(255, 255, 255, 0.12);
+    border-color: rgba(255, 255, 255, 0.25);
+    box-shadow: 
+      inset 0 4px 8px rgba(255, 255, 255, 0.1),
+      0 12px 24px -10px rgba(0, 0, 0, 0.4);
+    border-radius: 1.5rem;
+  }
+
+  .water-drop-button:active {
+    @apply scale-[0.96] translate-y-0 duration-150;
+  }
+
+  .rain-drop {
+    @apply absolute bg-white/10 rounded-full opacity-0 pointer-events-none transition-all duration-1000;
+    backdrop-filter: blur(1px);
+    box-shadow: 
+      inset 2px 2px 4px rgba(255, 255, 255, 0.4),
+      inset -1px -1px 4px rgba(0, 0, 0, 0.1),
+      2px 4px 8px rgba(0, 0, 0, 0.2);
+  }
+
+  .group:hover .rain-drop {
+    @apply opacity-40;
+  }
+
+  .group:hover .rain-drop.drip {
+    animation: drip linear infinite;
+  }
+
+  @keyframes drip {
+    0% { transform: translateY(-50px) scaleY(1.1); opacity: 0; }
+    10% { opacity: 0.4; }
+    80% { opacity: 0.3; }
+    100% { transform: translateY(400px) scaleY(1.5); opacity: 0; }
+  }
+
+  .ios-hover {
+    @apply transition-all duration-500;
+    transition-timing-function: cubic-bezier(0.4,0,0.2,1);
+  }
+
+  .ios-hover:hover {
+    @apply -translate-y-1.5 shadow-2xl scale-[1.02];
+  }
 }

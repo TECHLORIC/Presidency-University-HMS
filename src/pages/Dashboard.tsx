@@ -131,6 +131,36 @@ export default function Dashboard() {
     <motion.div variants={container} initial="hidden" animate="show" className="space-y-8 max-w-5xl pb-10">
       {/* Premium Greeting Card */}
       <motion.div variants={item} className="relative overflow-hidden rounded-[2rem] p-8 md:p-12 bg-primary mesh-gradient border border-sidebar-primary/20 shadow-2xl group">
+        {/* Advanced Rainy Glass Overlay - Activates on Hover */}
+        <div className="absolute inset-0 pointer-events-none">
+          {[...Array(25)].map((_, i) => (
+            <div 
+              key={i}
+              className="rain-drop drip group-hover:opacity-40"
+              style={{
+                left: `${Math.random() * 100}%`,
+                top: `${Math.random() * 100}%`,
+                width: `${2 + Math.random() * 4}px`,
+                height: `${2 + Math.random() * 4}px`,
+                animationDuration: `${2 + Math.random() * 4}s`,
+                animationDelay: `${Math.random() * 5}s`,
+              }}
+            />
+          ))}
+          {[...Array(15)].map((_, i) => (
+            <div 
+              key={`static-${i}`}
+              className="rain-drop group-hover:opacity-20"
+              style={{
+                left: `${Math.random() * 100}%`,
+                top: `${Math.random() * 100}%`,
+                width: `${3 + Math.random() * 8}px`,
+                height: `${3 + Math.random() * 8}px`,
+              }}
+            />
+          ))}
+        </div>
+        
         <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:scale-110 transition-transform duration-700">
            <img src="https://presidencyuniversity.in/assets/images/overview-logo.webp" alt="PU" className="h-32 w-auto object-contain brightness-0 invert" />
         </div>
@@ -150,7 +180,7 @@ export default function Dashboard() {
       {/* Glassmorphic Stats */}
       <motion.div variants={item} className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {dashboardStats.map((stat) => (
-          <Card key={stat.label} className="glass-card group hover:bg-white/90 transition-all duration-300">
+          <Card key={stat.label} className="glass-card group ios-hover water-drop-button hover:bg-white/90">
             <CardContent className="p-6">
               <div className="flex items-center justify-between mb-4">
                 <div className={cn("p-2 rounded-xl bg-muted/50", stat.color.replace('text-', 'bg-').replace('/10', '/5'))}>
@@ -173,7 +203,7 @@ export default function Dashboard() {
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
           {currentActions.map((action) => (
             <Link key={action.to} to={action.to} className="h-full">
-              <Card className="glass-card hover:translate-y-[-4px] active:scale-95 transition-all group h-full">
+              <Card className="ios-hover water-drop-button active:scale-95 group h-full">
                 <CardContent className="p-5 flex flex-col items-center justify-center text-center h-full">
                   <div className={cn("h-12 w-12 rounded-2xl flex items-center justify-center mb-4 group-hover:rotate-6 transition-all duration-500 shadow-lg", action.color)}>
                     <action.icon className="h-6 w-6" strokeWidth={2.5} />
