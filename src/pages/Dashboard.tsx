@@ -93,12 +93,12 @@ export default function Dashboard() {
 
   const currentActions = user?.role === 'admin' 
     ? [
-        { to: '/users', icon: Users, label: 'Manage Users', color: 'bg-primary/10 text-primary' },
-        { to: '/leave', icon: ClipboardList, label: 'Manage Leaves', color: 'bg-info/10 text-info' },
-        { to: '/tickets', icon: Ticket, label: 'All Tickets', color: 'bg-destructive/10 text-destructive' },
-        { to: '/announcements', icon: Megaphone, label: 'Broadcast News', color: 'bg-warning/10 text-warning' },
-        { to: '/mess', icon: UtensilsCrossed, label: 'Mess Management', color: 'bg-success/10 text-success' },
-        { to: '/settings', icon: Settings, label: 'System Settings', color: 'bg-muted text-muted-foreground' },
+        { to: '/users', icon: Users, label: 'Manage Users', description: 'Configure student and staff accounts', color: 'bg-primary/10 text-primary' },
+        { to: '/leave', icon: ClipboardList, label: 'Manage Leaves', description: 'Review and approve leave applications', color: 'bg-info/10 text-info' },
+        { to: '/tickets', icon: Ticket, label: 'All Tickets', description: 'Oversight of all support and mess tickets', color: 'bg-destructive/10 text-destructive' },
+        { to: '/announcements', icon: Megaphone, label: 'Broadcast News', description: 'Publish announcements to all users', color: 'bg-warning/10 text-warning' },
+        { to: '/mess', icon: UtensilsCrossed, label: 'Mess Management', description: 'Coordinate menus and mess operations', color: 'bg-success/10 text-success' },
+        { to: '/settings', icon: Settings, label: 'System Settings', description: 'Configure global portal parameters', color: 'bg-muted text-muted-foreground' },
       ]
     : user?.role === 'maintenance' 
     ? [
@@ -200,15 +200,23 @@ export default function Dashboard() {
            <h2 className="font-display text-lg font-black tracking-tight">Priority Actions</h2>
            <div className="h-px flex-1 bg-gradient-to-r from-border to-transparent" />
         </div>
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+        <div className="flex flex-col gap-3">
           {currentActions.map((action) => (
-            <Link key={action.to} to={action.to} className="h-full">
-              <Card className="ios-hover water-drop-button active:scale-95 group h-full">
-                <CardContent className="p-5 flex flex-col items-center justify-center text-center h-full">
-                  <div className={cn("h-12 w-12 rounded-2xl flex items-center justify-center mb-4 group-hover:rotate-6 transition-all duration-500 shadow-lg", action.color)}>
-                    <action.icon className="h-6 w-6" strokeWidth={2.5} />
+            <Link key={action.to} to={action.to} className="w-full">
+              <Card className="ios-notification-option py-3 px-4 border-none shadow-none group">
+                <CardContent className="p-0 flex items-center justify-between gap-4">
+                  <div className="flex items-center gap-4">
+                    <div className={cn("h-11 w-11 rounded-[0.9rem] flex items-center justify-center shadow-lg transition-transform duration-500 group-hover:scale-110", action.color)}>
+                      <action.icon className="h-5 w-5" strokeWidth={2.5} />
+                    </div>
+                    <div className="flex flex-col text-left">
+                      <span className="text-sm font-bold text-white leading-tight">{action.label}</span>
+                      <span className="text-[10px] font-medium text-white/50">{action.description || 'Access portal features'}</span>
+                    </div>
                   </div>
-                  <p className="text-[11px] font-black uppercase tracking-tight leading-tight">{action.label}</p>
+                  <div className="text-[10px] font-semibold text-white/30 uppercase tracking-widest px-2">
+                    Open
+                  </div>
                 </CardContent>
               </Card>
             </Link>

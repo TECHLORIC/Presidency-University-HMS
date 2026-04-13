@@ -134,17 +134,17 @@
 
   .ios-notification-option {
     @apply transition-all duration-300 relative overflow-hidden;
-    backdrop-filter: blur(25px);
-    background: rgba(255, 255, 255, 0.06);
-    border: 0.5px solid rgba(255, 255, 255, 0.2);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(30px) saturate(180%) !important;
+    background: rgba(25, 25, 25, 0.75) !important;
+    border: 0.5px solid rgba(255, 255, 255, 0.2) !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
   }
 
   .ios-notification-option:hover {
     @apply scale-[1.01] -translate-y-0.5;
-    background: rgba(255, 255, 255, 0.1);
-    border-color: rgba(255, 255, 255, 0.4);
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+    background: rgba(30, 30, 30, 0.85);
+    border-color: rgba(255, 255, 255, 0.3);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
   }
 
   .ios-notification-option:active {
