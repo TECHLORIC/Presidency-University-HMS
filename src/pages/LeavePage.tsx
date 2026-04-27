@@ -9,9 +9,9 @@ import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
 import { Card, CardContent } from '@/components/ui/card';
 import { useAppStore } from '@/lib/store';
-import { supabase } from '@/lib/supabase';
 import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
+import { leavesApi } from '@/lib/api/leaves';
 
 const statusConfig: Record<string, { icon: any, color: string, label: string }> = {
   pending: { icon: Clock, color: 'bg-warning/10 text-warning', label: 'Pending' },
@@ -31,53 +31,47 @@ export default function LeavePage() {
 
   const fetchLeaves = async () => {
     if (!user) return;
-    let query = supabase.from('leaves').select('*, profiles(*)').order('created_at', { ascending: false });
-    if (user.role === 'student') query = query.eq('student_id', user.id);
-    const { data } = await query;
-    if (data) setLeaves(data);
+    try {
+      const data = await leavesApi.getAll(user.id, user.role);
+      setLeaves(data);
+    } catch (error: any) {
+      toast.error(error.message);
+    }
   };
 
   useEffect(() => {
     fetchLeaves();
   }, [user]);
 
-  const handleStatusUpdate = async (e: React.MouseEvent, id: string, status: string) => {
+  const handleStatusUpdate = async (e: React.MouseEvent, id: string, status: any) => {
     e.stopPropagation();
-    const { error } = await supabase.from('leaves').update({ status }).eq('id', id);
-    if (error) {
-      toast.error(error.message);
-    } else {
+    try {
+      await leavesApi.updateStatus(id, status);
       toast.success(`Leave ${status}`);
       fetchLeaves();
       if (selectedLeave?.id === id) setSelectedLeave({ ...selectedLeave, status });
+    } catch (error: any) {
+      toast.error(error.message);
     }
   };
 
   const handleSubmit = async () => {
-    if (!reason || !fromDate || !toDate) {
+    if (!reason || !fromDate || !toDate || !user) {
       toast.error('Please fill all fields');
       return;
     }
     
-    const { error } = await supabase.from('leaves').insert({
-      student_id: user?.id,
-      reason,
-      from_date: fromDate,
-      to_date: toDate,
-      status: 'pending'
-    });
-
-    if (error) {
+    try {
+      await leavesApi.apply(user.id, reason, fromDate, toDate);
+      toast.success('Leave request submitted');
+      setOpen(false);
+      setReason('');
+      setFromDate('');
+      setToDate('');
+      fetchLeaves();
+    } catch (error: any) {
       toast.error(error.message);
-      return;
     }
-
-    toast.success('Leave request submitted');
-    setOpen(false);
-    setReason('');
-    setFromDate('');
-    setToDate('');
-    fetchLeaves();
   };
 
   return (

@@ -12,8 +12,8 @@ import { toast } from 'sonner';
 import { Card, CardContent } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 import { useAppStore } from '@/lib/store';
-import { supabase } from '@/lib/supabase';
 import { Badge } from '@/components/ui/badge';
+import { ticketsApi } from '@/lib/api/tickets';
 
 const categoryIcons: Record<string, typeof Droplets> = {
   water: Droplets, wifi: Wifi, electricity: Zap, cleaning: Brush, plumbing: Wrench, furniture: Package, other: Package,
@@ -47,10 +47,12 @@ export default function TicketsPage() {
 
   const fetchTickets = async () => {
     if (!user) return;
-    let query = supabase.from('tickets').select('*').order('created_at', { ascending: false });
-    if (user.role === 'student') query = query.eq('created_by', user.id);
-    const { data } = await query;
-    if (data) setTickets(data);
+    try {
+      const data = await ticketsApi.getAll(user.id, user.role);
+      setTickets(data);
+    } catch (error: any) {
+      toast.error(error.message);
+    }
   };
 
   useEffect(() => {
@@ -58,38 +60,35 @@ export default function TicketsPage() {
   }, [user]);
 
   const handleSubmit = async () => {
-    if (!title || !desc) { toast.error('Please fill all fields'); return; }
+    if (!title || !desc || !user) { toast.error('Please fill all fields'); return; }
     
-    const { error } = await supabase.from('tickets').insert({
-      title,
-      description: desc,
-      category,
-      priority: 'medium',
-      status: 'open',
-      created_by: user?.id,
-      room_number: user?.room_number || 'N/A'
-    });
+    try {
+      await ticketsApi.create({
+        title,
+        description: desc,
+        category,
+        userId: user.id,
+        roomNumber: user.room_number || 'N/A'
+      });
 
-    if (error) {
+      toast.success('Ticket raised successfully');
+      setOpen(false); setTitle(''); setDesc(''); setCategory('other');
+      fetchTickets();
+    } catch (error: any) {
       toast.error(error.message);
-      return;
     }
-
-    toast.success('Ticket raised successfully');
-    setOpen(false); setTitle(''); setDesc(''); setCategory('other');
-    fetchTickets();
   };
 
   const handleStatusUpdate = async (id: string, newStatus: string) => {
-    const { error } = await supabase.from('tickets').update({ status: newStatus }).eq('id', id);
-    if (error) {
-      toast.error(error.message);
-    } else {
+    try {
+      await ticketsApi.updateStatus(id, newStatus);
       toast.success('Status updated');
       fetchTickets();
       if (selectedTicket?.id === id) {
         setSelectedTicket({ ...selectedTicket, status: newStatus });
       }
+    } catch (error: any) {
+      toast.error(error.message);
     }
   };
 

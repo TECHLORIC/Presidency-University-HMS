@@ -5,10 +5,10 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useAppStore } from '@/lib/store';
-import { supabase } from '@/lib/supabase';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { Loader2 } from 'lucide-react';
+import { securityApi } from '@/lib/api/security';
 
 export default function SecurityPage() {
   const { user } = useAppStore();
@@ -23,20 +23,12 @@ export default function SecurityPage() {
   const isComplete = checklist.door && checklist.almirah && checklist.electronics;
 
   const fetchLogs = async () => {
-    let query = supabase
-      .from('room_security_logs')
-      .select('*, profiles(name)')
-      .order('timestamp', { ascending: false })
-      .limit(20);
-
-    // Filter by room only for students/parents
-    if (user?.role === 'student' || user?.role === 'parent') {
-      if (!user?.room_number) return;
-      query = query.eq('room_number', user.room_number);
+    try {
+      const data = await securityApi.getLogs(user?.id, user?.room_number, user?.role, 20);
+      setLogs(data);
+    } catch (error: any) {
+      toast.error(error.message);
     }
-
-    const { data } = await query;
-    if (data) setLogs(data);
   };
 
   useEffect(() => {
@@ -48,20 +40,11 @@ export default function SecurityPage() {
     setLoading(true);
     
     try {
-      const { error } = await supabase.from('room_security_logs').insert({
-        user_id: user?.id,
-        room_number: user?.room_number || 'N/A',
-        status_snapshot: checklist,
-        scanned_tag_id: 'MANUAL_VERIFICATION' // Simplified from NFC
-      });
-
-      if (error) {
-        toast.error(error.message);
-      } else {
-        toast.success("Room Secured Successfully!");
-        setChecklist({ door: false, almirah: false, electronics: false });
-        fetchLogs();
-      }
+      if (!user) return;
+      await securityApi.logSecurity(user.id, user.room_number || 'N/A', checklist);
+      toast.success("Room Secured Successfully!");
+      setChecklist({ door: false, almirah: false, electronics: false });
+      fetchLogs();
     } catch (error: any) {
       toast.error(`Confirmation failed: ${error.message}`);
     } finally {

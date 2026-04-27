@@ -9,7 +9,10 @@ import { useAppStore } from '@/lib/store';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
-import { supabase } from '@/lib/supabase';
+import { leavesApi } from '@/lib/api/leaves';
+import { ticketsApi } from '@/lib/api/tickets';
+import { announcementsApi } from '@/lib/api/announcements';
+import { usersApi } from '@/lib/api/users';
 
 const quickActions = [
   { to: '/leave', icon: FileText, label: 'Apply Leave', color: 'bg-info/10 text-info' },
@@ -28,51 +31,40 @@ export default function Dashboard() {
 
   useEffect(() => {
     async function fetchDashboardData() {
-      // Admin specific global stats
-      let studentsCount = 0;
-      let staffCount = 0;
-      if (user?.role === 'admin' || user?.role === 'warden') {
-        const { count: sCount } = await supabase.from('profiles').select('id', { count: 'exact' }).eq('role', 'student');
-        const { count: stCount } = await supabase.from('profiles').select('id', { count: 'exact' }).neq('role', 'student');
-        studentsCount = sCount || 0;
-        staffCount = stCount || 0;
+      try {
+        // Admin specific global stats
+        let studentsCount = 0;
+        let staffCount = 0;
+        if (user?.role === 'admin' || user?.role === 'warden') {
+          const userStats = await usersApi.getStats();
+          studentsCount = userStats.students;
+          staffCount = userStats.staff;
+        }
+
+        // Leaves Stats
+        const pendingLeaves = await leavesApi.getPendingCount(user?.id, user?.role);
+
+        // Tickets Stats
+        const ticketStats = await ticketsApi.getStats(user?.id, user?.role);
+
+        setStats({
+          pendingLeaves: pendingLeaves || 0,
+          openTickets: ticketStats.open,
+          resolvedTickets: ticketStats.resolved,
+          totalStudents: studentsCount,
+          totalStaff: staffCount
+        });
+
+        // Recent Announcements
+        const annData = await announcementsApi.getRecent(2);
+        setAnnouncements(annData);
+
+        // Active Tickets Fetch
+        const tktsData = await ticketsApi.getActive(user?.id, user?.role, 3);
+        setActiveTickets(tktsData);
+      } catch (error: any) {
+        console.error('Error fetching dashboard data:', error.message);
       }
-
-      // Leaves Stats
-      let leavesQuery = supabase.from('leaves').select('id', { count: 'exact' }).eq('status', 'pending');
-      if (user?.role === 'student') leavesQuery = leavesQuery.eq('student_id', user.id);
-      const { count: pendingLeaves } = await leavesQuery;
-
-      // Tickets Stats
-      let openTicketsQuery = supabase.from('tickets').select('id', { count: 'exact' }).in('status', ['open', 'in_progress']);
-      let resolvedTicketsQuery = supabase.from('tickets').select('id', { count: 'exact' }).eq('status', 'resolved');
-      
-      if (user?.role === 'student') {
-        openTicketsQuery = openTicketsQuery.eq('created_by', user.id);
-        resolvedTicketsQuery = resolvedTicketsQuery.eq('created_by', user.id);
-      }
-      
-      const [{ count: openTickets }, { count: resolvedTickets }] = await Promise.all([
-        openTicketsQuery, resolvedTicketsQuery
-      ]);
-
-      setStats({
-        pendingLeaves: pendingLeaves || 0,
-        openTickets: openTickets || 0,
-        resolvedTickets: resolvedTickets || 0,
-        totalStudents: studentsCount,
-        totalStaff: staffCount
-      });
-
-      // Recent Announcements
-      const { data: annData } = await supabase.from('announcements').select('*').order('created_at', { ascending: false }).limit(2);
-      if (annData) setAnnouncements(annData);
-
-      // Active Tickets Fetch
-      let tktsQuery = supabase.from('tickets').select('*').neq('status', 'closed').order('created_at', { ascending: false }).limit(3);
-      if (user?.role === 'student') tktsQuery = tktsQuery.eq('created_by', user.id);
-      const { data: tktsData } = await tktsQuery;
-      if (tktsData) setActiveTickets(tktsData);
     }
 
     if (user?.id) fetchDashboardData();

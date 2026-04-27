@@ -7,9 +7,9 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { useAppStore } from '@/lib/store';
-import { supabase } from '@/lib/supabase';
 import { toast } from 'sonner';
 import { Badge } from '@/components/ui/badge';
+import { usersApi } from '@/lib/api/users';
 
 export default function UsersPage() {
   const { user: currentUser } = useAppStore();
@@ -19,10 +19,12 @@ export default function UsersPage() {
   const [selectedUser, setSelectedUser] = useState<any>(null);
 
   const fetchProfiles = async () => {
-    let query = supabase.from('profiles').select('*').order('created_at', { ascending: false });
-    const { data, error } = await query;
-    if (data) setProfiles(data);
-    if (error) toast.error(error.message);
+    try {
+      const data = await usersApi.getAll();
+      setProfiles(data);
+    } catch (error: any) {
+      toast.error(error.message);
+    }
   };
 
   useEffect(() => {
@@ -35,15 +37,15 @@ export default function UsersPage() {
       return;
     }
 
-    const { error } = await supabase.from('profiles').update({ role: newRole }).eq('id', profileId);
-    if (error) {
-       toast.error(error.message);
-    } else {
-       toast.success(`Role updated to ${newRole}`);
-       fetchProfiles();
-       if (selectedUser?.id === profileId) {
-         setSelectedUser({ ...selectedUser, role: newRole });
-       }
+    try {
+      await usersApi.updateRole(profileId, newRole);
+      toast.success(`Role updated to ${newRole}`);
+      fetchProfiles();
+      if (selectedUser?.id === profileId) {
+        setSelectedUser({ ...selectedUser, role: newRole });
+      }
+    } catch (error: any) {
+      toast.error(error.message);
     }
   };
 
@@ -54,13 +56,13 @@ export default function UsersPage() {
        return;
     }
 
-    const { error } = await supabase.from('profiles').delete().eq('id', profileId);
-    if (error) {
-       toast.error(error.message);
-    } else {
-       toast.success('Profile deleted successfully');
-       fetchProfiles();
-       if (selectedUser?.id === profileId) setSelectedUser(null);
+    try {
+      await usersApi.delete(profileId);
+      toast.success('Profile deleted successfully');
+      fetchProfiles();
+      if (selectedUser?.id === profileId) setSelectedUser(null);
+    } catch (error: any) {
+      toast.error(error.message);
     }
   };
 

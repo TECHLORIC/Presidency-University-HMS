@@ -8,9 +8,9 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { supabase } from '@/lib/supabase';
 import { useAppStore } from '@/lib/store';
 import { toast } from 'sonner';
+import { announcementsApi } from '@/lib/api/announcements';
 
 const priorityConfig: Record<string, { icon: any, color: string, badge: string }> = {
   urgent: { icon: AlertTriangle, color: 'bg-destructive/10 text-destructive', badge: 'bg-destructive text-destructive-foreground' },
@@ -28,8 +28,12 @@ export default function AnnouncementsPage() {
   const [selectedAnnouncement, setSelectedAnnouncement] = useState<any>(null);
 
   const fetchAnnouncements = async () => {
-    const { data } = await supabase.from('announcements').select(`*, profiles(name)`).order('created_at', { ascending: false });
-    if (data) setAnnouncements(data);
+    try {
+      const data = await announcementsApi.getAll();
+      setAnnouncements(data);
+    } catch (error: any) {
+      toast.error(error.message);
+    }
   };
 
   useEffect(() => {
@@ -37,39 +41,38 @@ export default function AnnouncementsPage() {
   }, []);
 
   const handleSubmit = async () => {
-    if (!title || !message) {
+    if (!title || !message || !user) {
       toast.error('Please fill all fields');
       return;
     }
 
-    const { error } = await supabase.from('announcements').insert({
-      title,
-      message,
-      priority,
-      created_by: user?.id
-    });
-
-    if (error) {
-      toast.error(error.message);
-    } else {
+    try {
+      await announcementsApi.create({
+        title,
+        message,
+        priority,
+        userId: user.id
+      });
       toast.success('Announcement posted');
       setOpen(false);
       setTitle('');
       setMessage('');
       fetchAnnouncements();
+    } catch (error: any) {
+      toast.error(error.message);
     }
   };
 
   const handleDelete = async (e: React.MouseEvent, id: string) => {
     e.stopPropagation();
     if (!confirm("Are you sure you want to delete this announcement?")) return;
-    const { error } = await supabase.from('announcements').delete().eq('id', id);
-    if (error) {
-      toast.error(error.message);
-    } else {
+    try {
+      await announcementsApi.delete(id);
       toast.success('Announcement deleted');
       fetchAnnouncements();
       if (selectedAnnouncement?.id === id) setSelectedAnnouncement(null);
+    } catch (error: any) {
+      toast.error(error.message);
     }
   };
 

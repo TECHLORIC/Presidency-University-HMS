@@ -1,0 +1,59 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 40 12% 98%;
+    --foreground: 225 45% 12%;
+    --card: 0 0% 100%;
+    --card-foreground: 225 45% 12%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 225 45% 15%;
+    --primary: 225 45% 22%;
+    --primary-foreground: 45 80% 95%;
+    --secondary: 45 40% 94%;
+    --secondary-foreground: 225 45% 15%;
+    --muted: 45 20% 94%;
+    --muted-foreground: 225 20% 45%;
+    --accent: 45 65% 90%;
+    --accent-foreground: 225 45% 15%;
+    --destructive: 0 75% 45%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 225 15% 90%;
+    --input: 225 15% 90%;
+    --ring: 225 45% 25%;
+    --radius: 1rem;
+    --success: 145 65% 35%;
+    --warning: 38 90% 45%;
+    --info: 215 85% 45%;
+  }
+
+  .dark {
+    --background: 225 45% 8%;
+    --foreground: 45 30% 92%;
+    --card: 225 45% 10%;
+    --card-foreground: 45 30% 92%;
+    --popover: 225 45% 10%;
+    --popover-foreground: 45 30% 92%;
+    --primary: 45 80% 65%;
+    --primary-foreground: 225 45% 10%;
+    --secondary: 225 30% 18%;
+    --secondary-foreground: 45 30% 92%;
+    --muted: 225 30% 15%;
+    --muted-foreground: 225 20% 65%;
+    --accent: 225 30% 20%;
+    --accent-foreground: 45 80% 65%;
+    --destructive: 0 75% 45%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 225 30% 18%;
+    --input: 225 30% 18%;
+    --ring: 45 80% 65%;
+  }
+}
+
+@layer components {
+  .ios-card {
+    @apply bg-card/70 border border-white/10 shadow-xl;
+  }
+}
